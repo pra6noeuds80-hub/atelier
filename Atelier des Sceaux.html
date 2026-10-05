@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Atelier des Sceaux</title>
+<style>
+:root{--bg:#f4efe4;--fg:#2a2118;--gold:#8a5a00;--card:#fffaf0;--line:#d8c9a8;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14101c;--fg:#eee6d6;--gold:#e0b64a;--card:#1f192c;--line:#3a3050}}
+:root[data-theme="dark"]{--bg:#14101c;--fg:#eee6d6;--gold:#e0b64a;--card:#1f192c;--line:#3a3050}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:Georgia,'Times New Roman',serif;line-height:1.5}
+main{max-width:720px;margin:0 auto;padding:20px 16px 40px}
+h1{text-align:center;color:var(--gold);font-weight:400;letter-spacing:.12em;margin:.2em 0}
+.sub{text-align:center;opacity:.75;margin:0 0 18px;font-style:italic}
+textarea{width:100%;min-height:90px;padding:12px;font:inherit;font-size:1.1rem;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:10px;resize:vertical}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 18px}
+button{font:inherit;padding:8px 14px;background:var(--card);color:var(--gold);border:1px solid var(--gold);border-radius:20px;cursor:pointer}
+button:hover{background:var(--gold);color:var(--bg)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 4px;font-size:1rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.card h2 button{font-size:.75rem;padding:3px 10px;text-transform:none;letter-spacing:0}
+.note{font-size:.85rem;opacity:.7;margin:0 0 8px}
+.out{font-size:1.6rem;word-break:break-word;min-height:1.6em;font-family:'Noto Sans Symbols','Noto Sans Symbols 2','Segoe UI Symbol','Noto Sans Runic','Segoe UI Historic',serif}
+.rom{font-size:1.1rem;font-family:Georgia,serif}
+.rom b{color:var(--gold)}
+svg{display:block;margin:0 auto;width:100%;max-width:380px;height:auto}
+.row button.on{background:var(--gold);color:var(--bg)}select{font:inherit;padding:6px 10px;background:var(--card);color:var(--fg);border:1px solid var(--gold);border-radius:8px}[hidden]{display:none!important}.row label{display:inline-flex;gap:5px;align-items:center}.spin{transform-box:view-box;transform-origin:50% 50%;animation:sp 40s linear infinite;animation-duration:calc(var(--d,40)*1s);animation-play-state:paused}.rev{animation-direction:reverse}.run .spin{animation-play-state:running}@keyframes sp{to{transform:rotate(360deg)}}.pz{transform-box:view-box;transform-origin:50% 50%}.fx-glow svg{filter:drop-shadow(0 0 4px currentColor) drop-shadow(0 0 12px currentColor)}.fx-hue svg{animation:hu 14s linear infinite}@keyframes hu{to{filter:hue-rotate(360deg)}}.fx-hue.fx-glow svg{animation-name:hug}@keyframes hug{from{filter:drop-shadow(0 0 4px currentColor) drop-shadow(0 0 12px currentColor) hue-rotate(0deg)}to{filter:drop-shadow(0 0 4px currentColor) drop-shadow(0 0 12px currentColor) hue-rotate(360deg)}}.fx-pulse .pz{animation:pu 5s ease-in-out infinite}@keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}.fx-twk .spin>*:not(.spin):nth-child(3n+1){animation:tw 2.6s ease-in-out infinite}.fx-twk .spin>*:not(.spin):nth-child(3n+2){animation:tw 2.6s ease-in-out -.9s infinite}.fx-twk .spin>*:not(.spin):nth-child(3n){animation:tw 2.6s ease-in-out -1.7s infinite}@keyframes tw{50%{opacity:.15}}.fx-draw .dr{stroke-dasharray:1;stroke-dashoffset:1;animation:dr 5s ease forwards}@keyframes dr{to{stroke-dashoffset:0}}.empty{opacity:.5;font-style:italic}
+</style>
+</head>
+<body>
+<main>
+<h1>ATELIER DES SCEAUX</h1>
+<p class="sub">Écrivez un mot, un vœu ou une prière : il devient rune, nombre, signe et sceau.</p>
+<div class="row" id="tabs"><button class="on" data-tab="t1">Traducteur de symboles</button><button data-tab="t2">Dessins de lumière</button><button data-tab="t3">Harmonie des sceaux</button><button data-tab="t4">Rosaces</button></div>
+<div id="t1">
+<textarea id="in" placeholder="Ex. : Que la lumière guide mon chemin" aria-label="Texte français"></textarea>
+<div class="row">
+<select class="pr" data-for="in" aria-label="Prières du monde"></select>
+<button data-ex="Paix et lumière">Paix et lumière</button>
+<button data-ex="Protège ma maison">Protège ma maison</button>
+<button data-ex="Que la force m'accompagne">Force</button>
+<button id="clr">Effacer</button>
+</div>
+
+<section class="card"><h2>Sceau magique (sigil) <button data-copy="seal">Copier le SVG</button></h2>
+<p class="note">Lettres uniques reliées sur la roue de 26 points : cercle au départ, barre à l'arrivée, anneau de runes autour.</p>
+<div id="seal"></div></section>
+
+<section class="card"><h2>Écriture runique <button data-copy="runes">Copier</button></h2>
+<p class="note">Futhark ancien ; th, ng et ou ont leur propre rune.</p>
+<div class="out" id="runes"></div></section>
+
+<section class="card"><h2>Ogham (alphabet des arbres) <button data-copy="ogham">Copier</button></h2>
+<p class="note">Alphabet celtique : chaque lettre est un trait le long d'une tige, chaque mot est encadré de ses plumes ᚛ ᚜.</p>
+<div class="out" id="ogham" style="font-family:'Noto Sans Ogham','Segoe UI Historic','Noto Sans Symbols',serif"></div></section>
+
+<section class="card"><h2>Alphabet hébraïque <button data-copy="hebrew">Copier</button></h2>
+<p class="note">Lu de droite à gauche, sans voyelles écrites, avec les lettres finales en bout de mot : ch→ש, th→ט, ou→ו.</p>
+<div class="out" id="hebrew" dir="rtl" style="text-align:right;font-family:'Noto Sans Hebrew','Segoe UI',serif"></div></section>
+
+<section class="card"><h2>Guématrie hébraïque <button data-copy="gematria">Copier</button></h2>
+<p class="note">Valeur numérique de chaque mot hébreu (א=1 … י=10, כ=20 … ק=100, ר=200, ש=300, ת=400), lettres finales comprises, avec la réduction à un chiffre.</p>
+<div class="rom" id="gematria"></div></section>
+
+<section class="card"><h2>Carré magique (kamea) <button data-copy="kamea">Copier le SVG</button></h2>
+<p class="note">Chaque lettre (A=1 … Z=26, repliée sur les cases du carré) est un point : le sceau relie les cases, du cercle à la barre.</p>
+<select id="pl" aria-label="Carré planétaire" style="font:inherit;padding:6px 10px;margin-bottom:8px;background:var(--card);color:var(--fg);border:1px solid var(--gold);border-radius:8px">
+<option value="3">Saturne · 3×3</option><option value="4">Jupiter · 4×4</option><option value="5">Mars · 5×5</option><option value="6" selected>Soleil · 6×6</option><option value="7">Vénus · 7×7</option><option value="8">Mercure · 8×8</option><option value="9">Lune · 9×9</option></select>
+<div id="kamea"></div></section>
+
+<section class="card"><h2>Chiffres romains <button data-copy="roman">Copier</button></h2>
+<p class="note">Valeur de chaque mot (A=1 … Z=26), écrite en chiffres romains.</p>
+<div class="rom" id="roman"></div></section>
+
+<section class="card"><h2>Signes mathématiques <button data-copy="maths">Copier</button></h2>
+<div class="out" id="maths"></div></section>
+
+<section class="card"><h2>Symboles alchimiques <button data-copy="alchemy">Copier</button></h2>
+<p class="note">Si certains signes s'affichent en carrés, votre appareil n'a pas la police alchimique.</p>
+<div class="out" id="alchemy"></div></section>
+</div>
+<div id="t2" hidden>
+<textarea id="aw" aria-label="Mots d'amour ou prière">Amour · Lumière · Paix</textarea>
+<div class="row">
+<select class="pr" data-for="aw" aria-label="Prières du monde"></select>
+<button data-aw="Amour, tendresse, douceur, joie, cœur, lumière, paix">Mots d'amour</button>
+<button data-aw="Que la lumière m'éclaire, que l'amour me guide, que la paix habite mon cœur">Prière de lumière</button>
+<button data-aw="Lumière divine, enveloppe ceux que j'aime de ta douceur et protège-les">Protection</button>
+</div>
+<div class="row">
+<select id="sh" aria-label="Forme"><option value="heart">Cœur</option><option value="dove">Colombe</option><option value="angels">Anges et enfant</option><option value="sun">Soleil</option><option value="mandala">Mandala</option><option value="flower">Fleur</option><option value="star">Étoile</option><option value="spiral">Spirale</option><option value="all">Grande fresque (tous les dessins)</option></select>
+<select id="tn" aria-label="Couleur"><option value="gold">Or</option><option value="rose">Rose d'amour</option><option value="blue">Bleu lumière</option></select>
+</div>
+<section class="card"><h2>Dessin de mots <button data-copy="art">Copier le SVG</button></h2>
+<p class="note">Vos mots forment le dessin : ils suivent les contours ou rayonnent depuis le centre.</p>
+<div id="art"></div></section>
+</div>
+<div id="t3" hidden>
+<textarea id="hw" aria-label="Mots">Amour Lumière Paix</textarea>
+<div class="row"><select class="pr" data-for="hw" aria-label="Prières du monde"></select><button data-hw="Amour Lumière Paix">Amour Lumière Paix</button><button data-hw="Que la lumière m'éclaire, que l'amour me guide">Prière de lumière</button><button data-hw="Protège ma maison">Protection</button></div>
+<div class="row">
+<select id="sh2" aria-label="Forme"><option value="heart">Cœur</option><option value="dove" selected>Colombe</option><option value="angels">Anges et enfant</option><option value="sun">Soleil</option><option value="mandala">Mandala</option><option value="flower">Fleur</option><option value="star">Étoile</option><option value="spiral">Spirale</option></select>
+<select id="tn2" aria-label="Couleur"><option value="gold">Or</option><option value="rose">Rose d'amour</option><option value="blue">Bleu lumière</option></select>
+<select id="geo" aria-label="Géométrie"><option value="flower">Fleur de vie</option><option value="metatron">Cube de Métatron</option><option value="hexagram">Hexagramme</option><option value="none">Sans géométrie</option></select>
+<select id="ring" aria-label="Anneau"><option value="runes">Anneau de runes</option><option value="ogham">Anneau d'ogham</option><option value="roman">Anneau romain</option><option value="none">Sans anneau</option></select>
+</div>
+<div class="row"><label><input type="checkbox" id="cb1" checked> Sceau (sigil)</label><label><input type="checkbox" id="cb2" checked> Signes alchimiques</label></div>
+<section class="card"><h2>Sceau d'harmonie <button data-copy="harm">Copier le SVG</button></h2>
+<p class="note">Géométrie sacrée, dessin de mots, sceau des lettres et anneau d'écriture, superposés dans une même couleur.</p>
+<div id="harm"></div>
+<p class="rom" id="hinfo" style="margin:8px 0 0"></p>
+<div class="row" style="margin:8px 0 0"><button id="pf">Jouer la fréquence</button></div></section>
+</div>
+<div id="t4" class="fx-glow" hidden>
+<textarea id="rw" aria-label="Mots">Amour Lumière Paix</textarea>
+<div class="row"><select class="pr" data-for="rw" aria-label="Prières du monde"></select><button data-mix="sigil,petals">Sceau + pétales</button><button data-mix="doves,galaxy">Colombes + galaxie</button><button data-mix="hearts,star">Cœurs + étoile</button><button data-mix="galaxy,star,sigil">Spirale sacrée</button><button data-mix="hearts,doves,petals">Ronde d'amour</button><button data-mix="tunnel,spiro,orbs">Vortex</button><button data-mix="lotus,rays,orbs,sigil">Mandala vivant</button><button data-mix="snow,star,sigil">Flocon sacré</button><button data-mix="spiro,lotus,petals">Fleur de feu</button><button data-mix="lotus,rays,sigil,runes,ogham,hebrew,phoenician,greek,hiero">Écritures anciennes</button><button data-mix="rays,tunnel,spiro,lotus,star,galaxy,snow,sun,mandala,spiral,petals,hearts,doves,angels,orbs,sigil,runes,ogham,hebrew">Tout mélanger</button></div>
+<div class="row"><label><input type="checkbox" class="ly" value="rays" checked> Rayons</label><label><input type="checkbox" class="ly" value="lotus" checked> Lotus</label><label><input type="checkbox" class="ly" value="spiro" checked> Spirographe</label><label><input type="checkbox" class="ly" value="tunnel"> Tunnel</label><label><input type="checkbox" class="ly" value="snow"> Flocon</label><label><input type="checkbox" class="ly" value="orbs"> Orbes</label><label><input type="checkbox" class="ly" value="sigil" checked> Sceau</label><label><input type="checkbox" class="ly" value="petals"> Pétales</label><label><input type="checkbox" class="ly" value="star"> Étoile</label><label><input type="checkbox" class="ly" value="galaxy"> Galaxie</label><label><input type="checkbox" class="ly" value="hearts"> Cœurs</label><label><input type="checkbox" class="ly" value="doves"> Colombes</label><label><input type="checkbox" class="ly" value="angels"> Anges</label><label><input type="checkbox" class="ly" value="sun"> Soleil</label><label><input type="checkbox" class="ly" value="mandala"> Mandala</label><label><input type="checkbox" class="ly" value="spiral"> Spirale</label></div>
+<div class="row"><b>Écritures :</b><label><input type="checkbox" class="sc" value="runes" checked> Runes</label><label><input type="checkbox" class="sc" value="ogham" checked> Ogham</label><label><input type="checkbox" class="sc" value="hebrew" checked> Hébreu</label><label><input type="checkbox" class="sc" value="phoenician"> Phénicien</label><label><input type="checkbox" class="sc" value="greek"> Grec</label><label><input type="checkbox" class="sc" value="hiero"> Hiéroglyphes</label><label><input type="checkbox" class="sc" value="alchemy"> Alchimie</label><label><input type="checkbox" class="sc" value="maths"> Maths</label><label><input type="checkbox" class="sc" value="roman"> Romain</label></div>
+<div class="row"><select id="tn3" aria-label="Couleur"><option value="gold">Or</option><option value="rose">Rose d'amour</option><option value="blue">Bleu lumière</option></select><select id="spd" aria-label="Vitesse"><option value="60">Lent</option><option value="30" selected>Moyen</option><option value="12">Rapide</option></select><button id="rot">Faire tourner</button></div>
+<div class="row"><button class="fxb on" data-fx="glow">Lueur</button><button class="fxb" data-fx="hue">Arc-en-ciel</button><button class="fxb" data-fx="pulse">Pulsation</button><button class="fxb" data-fx="twk">Scintillement</button><button class="fxb" data-fx="draw">Tracé progressif</button></div>
+<section class="card"><h2>× 3 <span><button data-gif="3" hidden>Télécharger le GIF</button> <button data-copy="ro3">Copier le SVG</button></span></h2><div id="ro3"></div></section>
+<section class="card"><h2>× 6 <span><button data-gif="6" hidden>Télécharger le GIF</button> <button data-copy="ro6">Copier le SVG</button></span></h2><div id="ro6"></div></section>
+<section class="card"><h2>× 9 <span><button data-gif="9" hidden>Télécharger le GIF</button> <button data-copy="ro9">Copier le SVG</button></span></h2><div id="ro9"></div></section>
+</div>
+</main>
+<script>
+const R={a:'ᚨ',b:'ᛒ',c:'ᚲ',d:'ᛞ',e:'ᛖ',f:'ᚠ',g:'ᚷ',h:'ᚺ',i:'ᛁ',j:'ᛃ',k:'ᚲ',l:'ᛚ',m:'ᛗ',n:'ᚾ',o:'ᛟ',p:'ᛈ',q:'ᚲ',r:'ᚱ',s:'ᛊ',t:'ᛏ',u:'ᚢ',v:'ᚹ',w:'ᚹ',x:'ᚲᛊ',y:'ᛁ',z:'ᛉ',th:'ᚦ',ng:'ᛜ',ou:'ᚢ'};
+const O={a:'ᚐ',b:'ᚁ',c:'ᚉ',d:'ᚇ',e:'ᚓ',f:'ᚃ',g:'ᚌ',h:'ᚆ',i:'ᚔ',j:'ᚌ',k:'ᚉ',l:'ᚂ',m:'ᚋ',n:'ᚅ',o:'ᚑ',p:'ᚚ',q:'ᚊ',r:'ᚏ',s:'ᚄ',t:'ᚈ',u:'ᚒ',v:'ᚃ',w:'ᚃ',x:'ᚉᚄ',y:'ᚔ',z:'ᚎ',ng:'ᚍ'};
+const oghWord=w=>'᚛'+(w.match(/ng|[a-z]/g)||[]).map(t=>O[t]).join('')+'᚜';
+const H={a:'א',b:'ב',c:'כ',d:'ד',e:'ה',f:'פ',g:'ג',h:'ח',i:'י',j:'ג',k:'ק',l:'ל',m:'מ',n:'נ',o:'ו',p:'פ',q:'ק',r:'ר',s:'ס',t:'ת',u:'ו',v:'ו',w:'ו',x:'קס',y:'י',z:'ז',ch:'ש',th:'ט',ou:'ו'};
+const HF={'מ':'ם','נ':'ן','פ':'ף','כ':'ך','צ':'ץ'};
+const hebWord=w=>{const s=(w.match(/ch|th|ou|[a-z]/g)||[]).map(t=>H[t]).join('');const l=s.slice(-1);return s.slice(0,-1)+(HF[l]||l)};
+const HV={'א':1,'ב':2,'ג':3,'ד':4,'ה':5,'ו':6,'ז':7,'ח':8,'ט':9,'י':10,'כ':20,'ך':20,'ל':30,'מ':40,'ם':40,'נ':50,'ן':50,'ס':60,'ע':70,'פ':80,'ף':80,'צ':90,'ץ':90,'ק':100,'ר':200,'ש':300,'ת':400};
+const gemVal=h=>[...h].reduce((s,c)=>s+(HV[c]||0),0);
+const redu=n=>{while(n>9)n=[...String(n)].reduce((s,d)=>s+ +d,0);return n};
+const K={3:"4 9 2 3 5 7 8 1 6",4:"4 14 15 1 9 7 6 12 5 11 10 8 16 2 3 13",5:"11 24 7 20 3 4 12 25 8 16 17 5 13 21 9 10 18 1 14 22 23 6 19 2 15",6:"6 32 3 34 35 1 7 11 27 28 8 30 19 14 16 15 23 24 18 20 22 21 17 13 25 29 10 9 26 12 36 5 33 4 2 31",7:"22 47 16 41 10 35 4 5 23 48 17 42 11 29 30 6 24 49 18 36 12 13 31 7 25 43 19 37 38 14 32 1 26 44 20 21 39 8 33 2 27 45 46 15 40 9 34 3 28",8:"8 58 59 5 4 62 63 1 49 15 14 52 53 11 10 56 41 23 22 44 45 19 18 48 32 34 35 29 28 38 39 25 40 26 27 37 36 30 31 33 17 47 46 20 21 43 42 24 9 55 54 12 13 51 50 16 64 2 3 61 60 6 7 57",9:"37 78 29 70 21 62 13 54 5 6 38 79 30 71 22 63 14 46 47 7 39 80 31 72 23 55 15 16 48 8 40 81 32 64 24 56 57 17 49 9 41 73 33 65 25 26 58 18 50 1 42 74 34 66 67 27 59 10 51 2 43 75 35 36 68 19 60 11 52 3 44 76 77 28 69 20 61 12 53 4 45"};
+function kamea(all){
+const n=+$('pl').value,a=K[n].split(' ').map(Number),s=300/n,N=n*n;
+const pos={};a.forEach((v,i)=>pos[v]=[10+(i%n)*s+s/2,10+Math.floor(i/n)*s+s/2]);
+const seq=[];[...new Set(all)].forEach(c=>{const v=(idx(c)%N)+1,p=pos[v];if(!seq.length||seq[seq.length-1]!==v)seq.push(v)});
+const vis=new Set(seq);let cells='';
+a.forEach((v,i)=>{const x=10+(i%n)*s,y=10+Math.floor(i/n)*s;cells+=`<rect x="${x}" y="${y}" width="${s}" height="${s}" fill="${vis.has(v)?'var(--gold)':'none'}" fill-opacity=".18" stroke="var(--line)"/><text x="${x+s/2}" y="${y+s/2+s*.11}" font-size="${(s*.32).toFixed(1)}" text-anchor="middle" fill="var(--fg)" opacity=".55">${v}</text>`});
+const P=seq.map(v=>pos[v]),f=P[0],l=P[P.length-1];
+let end='';
+if(P.length>1){const pr=P[P.length-2],ang=Math.atan2(l[1]-pr[1],l[0]-pr[0])+Math.PI/2,bx=9*Math.cos(ang),by=9*Math.sin(ang);end=`<line x1="${(l[0]-bx).toFixed(1)}" y1="${(l[1]-by).toFixed(1)}" x2="${(l[0]+bx).toFixed(1)}" y2="${(l[1]+by).toFixed(1)}" stroke="var(--gold)" stroke-width="3.5" stroke-linecap="round"/>`}
+const svg=`<svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sceau sur carré magique">${cells}<polyline points="${P.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ')}" fill="none" stroke="var(--gold)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${f[0].toFixed(1)}" cy="${f[1].toFixed(1)}" r="7" fill="none" stroke="var(--gold)" stroke-width="2.4"/>${end}</svg>`;
+out.kamea=svg;$('kamea').innerHTML=svg;
+}
+const M=[...'∆∫∪∂∈∮∇ℏ∞∃∀≡⊕∏∅π∝√∑∴∩⊗Ω∠⊥≈'];
+const A=[...'🜁🜄🜂🜃☿🜍☉☽♀♂♃♄🜔🜚🜛🜕🜖🜗🜘🜙🜜🜝🜞🜟🜡🜢'];
+const $=id=>document.getElementById(id);
+const norm=s=>s.toLowerCase().replace(/œ/g,'oe').replace(/æ/g,'ae').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+const words=s=>norm(s).split(/[^a-z]+/).filter(Boolean);
+const idx=c=>c.charCodeAt(0)-97;
+function roman(n){if(!n)return'—';let r='M'.repeat(Math.floor(n/1000));n%=1000;[[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']].forEach(([v,s])=>{while(n>=v){r+=s;n-=v}});return r}
+const runeWord=w=>(w.match(/th|ng|ou|[a-z]/g)||[]).map(t=>R[t]).join('');
+const out={};
+function render(){
+const t=$('in').value,ws=words(t),all=ws.join('');
+if(!ws.length){['runes','ogham','hebrew','gematria','kamea','roman','maths','alchemy','seal'].forEach(k=>{$(k).innerHTML='<span class="empty">Écrivez quelque chose…</span>';out[k]=''});return}
+out.runes=ws.map(runeWord).join('᛫');
+out.ogham=ws.map(oghWord).join(' ');$('ogham').textContent=out.ogham;
+out.hebrew=ws.map(hebWord).join(' ');$('hebrew').textContent=out.hebrew;
+{const hs=ws.map(hebWord);let gt=0;const gv=hs.map(h=>{const v=gemVal(h);gt+=v;return{h,v}});
+out.gematria=gv.map(g=>g.h+' = '+g.v+' → '+redu(g.v)).join('\n')+'\nTotal = '+gt+' → '+redu(gt);
+$('gematria').innerHTML=gv.map(g=>'<span dir="rtl" style="font-family:\'Noto Sans Hebrew\',\'Segoe UI\',serif;font-size:1.3rem">'+g.h+'</span> = <b>'+g.v+'</b> <small>→ '+redu(g.v)+'</small>').join('<br>')+'<br><hr style="border:0;border-top:1px solid var(--line)">Total <b>'+gt+'</b> <small>→ '+redu(gt)+'</small>'}
+out.maths=ws.map(w=>[...w].map(c=>M[idx(c)]).join('')).join('  ');
+out.alchemy=ws.map(w=>[...w].map(c=>A[idx(c)]).join('')).join('  ');
+let tot=0;
+const parts=ws.map(w=>{const v=[...w].reduce((s,c)=>s+idx(c)+1,0);tot+=v;return{w,v}});
+out.roman=parts.map(p=>p.w+' = '+p.v+' = '+roman(p.v)).join('\n')+'\nTotal = '+tot+' = '+roman(tot);
+$('runes').textContent=out.runes;$('maths').textContent=out.maths;$('alchemy').textContent=out.alchemy;
+$('roman').innerHTML=parts.map(p=>p.w+' <small>('+p.v+')</small> → <b>'+roman(p.v)+'</b>').join('<br>')+'<br><hr style="border:0;border-top:1px solid var(--line)">Total '+tot+' → <b>'+roman(tot)+'</b>';
+// sigil
+const u=[...new Set(all)],C=180,r=100;
+const P=c=>{const a=idx(c)/26*2*Math.PI-Math.PI/2;return[C+r*Math.cos(a),C+r*Math.sin(a),a]};
+let dots='',lab='';
+for(let i=0;i<26;i++){const c=String.fromCharCode(97+i),[x,y,a]=P(c);dots+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${u.includes(c)?2.5:1.2}" fill="var(--gold)" opacity="${u.includes(c)?1:.4}"/>`;lab+=`<text x="${(C+114*Math.cos(a)).toFixed(1)}" y="${(C+114*Math.sin(a)+3).toFixed(1)}" font-size="8" text-anchor="middle" fill="var(--fg)" opacity=".5">${c}</text>`}
+const pts=u.map(c=>P(c));
+const path=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+const f=pts[0],l=pts[pts.length-1];
+const la=Math.atan2(l[1]-C,l[0]-C)+Math.PI/2,bx=8*Math.cos(la),by=8*Math.sin(la);
+const ring=[...out.runes.replace(/᛫/g,'')].join('');
+const rr=(ring+'᛫').repeat(Math.max(1,Math.ceil(40/(ring.length+1))));
+const svg=`<svg viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sceau"><defs><path id="rc" d="M180,180 m-150,0 a150,150 0 1,1 300,0 a150,150 0 1,1 -300,0"/></defs><circle cx="180" cy="180" r="170" fill="none" stroke="var(--gold)" stroke-width="1.5"/><circle cx="180" cy="180" r="130" fill="none" stroke="var(--gold)" stroke-width=".8"/><circle cx="180" cy="180" r="${r}" fill="none" stroke="var(--line)" stroke-dasharray="2 4"/><text font-size="17" fill="var(--gold)" font-family="'Noto Sans Runic','Segoe UI Historic',serif"><textPath href="#rc" textLength="930" lengthAdjust="spacing">${rr}</textPath></text>${lab}${dots}<polyline points="${path}" fill="none" stroke="var(--gold)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${f[0].toFixed(1)}" cy="${f[1].toFixed(1)}" r="6" fill="none" stroke="var(--gold)" stroke-width="2"/><line x1="${(l[0]-bx).toFixed(1)}" y1="${(l[1]-by).toFixed(1)}" x2="${(l[0]+bx).toFixed(1)}" y2="${(l[1]+by).toFixed(1)}" stroke="var(--gold)" stroke-width="3" stroke-linecap="round"/><text x="180" y="355" font-size="11" text-anchor="middle" fill="var(--gold)" font-family="Georgia,serif">${roman(tot)}</text></svg>`;
+out.seal=svg;$('seal').innerHTML=svg;
+kamea(all);
+}
+$('in').addEventListener('input',render);
+$('pl').addEventListener('change',render);
+document.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>{$('in').value=b.dataset.ex;render()});
+$('clr').onclick=()=>{$('in').value='';render()};
+document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{
+const k=b.dataset.copy,old=b.textContent;
+try{let v=out[k]||'';if(k==='seal'||k==='kamea')v=v.replace(/var\(--gold\)/g,'#c9a227').replace(/var\(--fg\)/g,'#888').replace(/var\(--line\)/g,'#888');await navigator.clipboard.writeText(v);b.textContent='Copié ✓'}catch(e){b.textContent='Copie impossible'}
+setTimeout(()=>b.textContent=old,1400)});
+
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const PAL={rose:['#f07aa3','#b0285a'],blue:['#7cc8ff','#1a6fb0']};
+const dk=()=>matchMedia('(prefers-color-scheme: dark)').matches&&document.documentElement.dataset.theme!=='light';
+const inkc=id=>{const p=$(id||'tn').value;return PAL[p]?PAL[p][dk()?0:1]:(dk()?'#e0b64a':'#8a5a00')};
+const cir=r=>`M${200-r},200a${r},${r} 0 1,1 ${2*r},0a${r},${r} 0 1,1 ${-2*r},0`;
+const heart=s=>{let d='';for(let i=0;i<=120;i++){const t=i/120*2*Math.PI,x=16*Math.sin(t)**3,y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);d+=(i?'L':'M')+(200+x*s*11).toFixed(1)+','+(190-y*s*11).toFixed(1)}return d+'Z'};
+const spiral=()=>{let d='';for(let i=0;i<=420;i++){const k=i/420,a=k*4.5*2*Math.PI,r=12+176*k;d+=(i?'L':'M')+(200+r*Math.cos(a-Math.PI/2)).toFixed(1)+','+(200+r*Math.sin(a-Math.PI/2)).toFixed(1)}return d};
+const starD=()=>{const p=[0,1,2,3,4].map(k=>{const a=-Math.PI/2+k*2*Math.PI/5;return[200+185*Math.cos(a),200+185*Math.sin(a)]});return[0,2,4,1,3].map((k,i)=>(i?'L':'M')+p[k][0].toFixed(1)+','+p[k][1].toFixed(1)).join('')+'Z'};
+const DOVE='M338,172L318,160C312,140 288,138 278,156C272,168 266,180 254,190C250,140 215,85 165,48C175,95 195,150 218,198C170,215 110,240 62,278L38,300L84,300L104,282C140,295 190,305 240,290C285,275 305,235 312,200C315,190 322,184 326,180Z';
+const PET='M200,200C140,140 150,60 200,25C250,60 260,140 200,200Z';
+const tp=(id,d,fs,u)=>`<path id="${id}" d="${d}" fill="none" stroke="currentColor" stroke-opacity=".12" stroke-width=".6"/><text data-p="${id}" data-u="${u}" data-fs="${fs}" font-size="${fs}"><textPath href="#${id}">${u}</textPath></text>`;
+const bz=(a,b,c,d,n=14)=>{const r=[];for(let i=0;i<n;i++){const t=i/n,m=1-t;r.push([m*m*m*a[0]+3*m*m*t*b[0]+3*m*t*t*c[0]+t*t*t*d[0],m*m*m*a[1]+3*m*m*t*b[1]+3*m*t*t*c[1]+t*t*t*d[1]])}return r};
+const cw=p=>{let a=0;p.forEach((q,i)=>{const r=p[(i+1)%p.length];a+=q[0]*r[1]-r[0]*q[1]});return a>0?p:p.slice().reverse()};
+const pd=p=>cw(p).map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join('')+'Z';
+const cp=(cx,cy,r)=>Array.from({length:48},(_,i)=>[cx+r*Math.cos(i/48*2*Math.PI),cy+r*Math.sin(i/48*2*Math.PI)]);
+const WING=[...bz([112,178],[80,120],[40,95],[26,58]),...bz([26,58],[40,100],[30,125],[48,138]),...bz([48,138],[50,150],[40,170],[62,178]),...bz([62,178],[66,195],[60,210],[86,206]),...bz([86,206],[96,206],[104,198],[112,178])];
+const ROBE=[...bz([92,150],[80,220],[62,300],[56,352]),[56,352],[104,356],[152,352],...bz([152,352],[150,300],[135,230],[118,150]),[118,150]];
+const ARM=[...bz([112,150],[135,185],[160,225],[182,250]),[190,256],[184,264],...bz([184,264],[158,240],[128,205],[102,168])];
+const KID=[...bz([184,246],[172,270],[184,302],[200,308]),...bz([200,308],[216,302],[228,270],[216,246]),[200,243]];
+function drawArt(){if($('t2').hidden)return;paint($('aw').value.trim(),$('sh').value,inkc(),$('art'),'','')}
+function mk(sh,W,u){const rot=i=>{if(W.length<=8){const k=i%W.length;return esc(W.slice(k).concat(W.slice(0,k)).join(' · ')+' · ')}const t=[];for(let j=0;j<8;j++)t.push(W[(i*8+j)%W.length]);return esc(t.join(' · ')+' · ')};const uS=i=>esc(W[i%W.length]+' · ');let b='';
+if(sh==='heart')[1,.78,.58,.4,.22].forEach((s,i)=>b+=tp('h'+i,heart(s),15-i,rot(i)));
+else if(sh==='angels'){
+const A=[['w',WING,11,rot(0)],['r',ROBE,11,rot(1)],['a',ARM,8,uS(0)],['h',cp(105,120,15),9,uS(1)],['o',cp(105,120,25),9,uS(2)]];
+[0,1].forEach(m=>A.forEach(([k,p,fs,x])=>{b+=tp(k+m,pd(m?p.map(([X,Y])=>[400-X,Y]):p),fs,x)}));
+b+=tp('ch',pd(cp(200,228,17)),8,uS(0))+tp('cb',pd(KID),9,uS(1));
+for(let i=0;i<9;i++)b+=`<text data-r="40" font-size="10" x="222" y="231.5" transform="rotate(${-140+i*12.5} 200 228)">${esc(W[i%W.length])}</text>`}
+else if(sh==='dove'){b+=`<path id="dv" d="${DOVE}" fill="none"/><circle cx="296" cy="157" r="3" transform="translate(12 23)"/>`;[[1,13,u],[.7,18,rot(1)],[.42,28,rot(2)]].forEach(([k,f,x])=>b+=`<text data-p="dv" data-u="${x}" data-fs="${f}" transform="translate(12 23) translate(188 177) scale(${k}) translate(-188 -177)"><textPath href="#dv">${x}</textPath></text>`)}
+else if(sh==='sun'){b+=tp('c0',cir(52),15,rot(0))+tp('c1',cir(78),15,rot(1));for(let i=0;i<24;i++)b+=`<text data-r="100" font-size="16" x="295" y="204" transform="rotate(${i*15} 200 200)">${esc(W[i%W.length])}</text>`}
+else if(sh==='mandala')[178,152,126,100,74,48].forEach((r,i)=>b+=tp('m'+i,cir(r),14,rot(i)));
+else if(sh==='flower'){b+=`<path id="pt" d="${PET}" fill="none"/>`;for(let i=0;i<8;i++)b+=`<text data-p="pt" data-u="${u}" data-fs="15" transform="rotate(${i*45} 200 200)"><textPath href="#pt">${u}</textPath></text>`;for(let i=0;i<8;i++)b+=`<text data-p="pt" data-u="${rot(1)}" data-fs="24" transform="rotate(${i*45+22.5} 200 200) translate(200 200) scale(.55) translate(-200 -200)"><textPath href="#pt">${rot(1)}</textPath></text>`}
+else if(sh==='star')b+=tp('st',starD(),17,u)+tp('s1',cir(70),14,rot(1))+tp('s2',cir(40),12,rot(2));
+else b+=tp('sp',spiral(),15,u);
+return b}
+function paint(raw,sh,c,box,pre,post){
+if(!raw){box.innerHTML='<span class="empty">Écrivez des mots d\'amour ou une prière…</span>';out[box.id]='';return}
+const W=raw.split(/[\s,;·]+/).filter(Boolean),u=esc(raw.replace(/\s+/g,' ')+' · ');
+const rot=i=>{if(W.length<=8){const k=i%W.length;return esc(W.slice(k).concat(W.slice(0,k)).join(' · ')+' · ')}const t=[];for(let j=0;j<8;j++)t.push(W[(i*8+j)%W.length]);return esc(t.join(' · ')+' · ')};
+const uS=i=>esc(W[i%W.length]+' · ');
+const build=sh=>mk(sh,W,u);
+let b='';
+if(sh==='all'){const S=[[140,140,'sun'],[500,140,'heart'],[860,140,'flower'],[140,500,'dove'],[860,500,'heart'],[140,860,'star'],[500,860,'mandala'],[860,860,'spiral'],[500,500,'angels']];
+S.forEach(([x,y,n],i)=>{const k=n==='angels'?1:.62,p='z'+i+'_';b+=`<g transform="translate(${x-200*k},${y-200*k}) scale(${k})">`+build(n).replace(/(\bid="|data-p="|href="#)(\w+)"/g,(m,a,c)=>a+p+c+'"')+'</g>'})}
+else b=build(sh);
+const VB=sh==='all'?1000:400;
+box.innerHTML=`<svg viewBox="0 0 ${VB} ${VB}"${sh==='all'?' style="max-width:none;width:1000px"':''} xmlns="http://www.w3.org/2000/svg" fill="${c}" color="${c}" font-family="Georgia,'Times New Roman',serif" font-style="italic" role="img" aria-label="Dessin de mots"><defs><radialGradient id="gl"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs><circle cx="${VB/2}" cy="${VB/2}" r="${VB/2-2}" fill="url(#gl)"/>${pre}${b}${post}</svg>`;
+box.style.overflowX='auto';const sv=box.firstChild;
+sv.querySelectorAll('text[data-p]').forEach(t=>{const L=sv.querySelector('#'+t.dataset.p).getTotalLength(),e=t.firstChild,fs=+t.dataset.fs,x=t.dataset.u;e.textContent=x;t.setAttribute('font-size',fs);const w=t.getComputedTextLength();if(!w||!L)return;const n=Math.max(1,Math.round(L/w));e.textContent=x.repeat(n);t.setAttribute('font-size',(fs*L/(n*w)).toFixed(2))});
+sv.querySelectorAll('text[data-r]').forEach(t=>{const w=t.getComputedTextLength(),R=+t.dataset.r,f=+t.getAttribute('font-size');if(w>R)t.setAttribute('font-size',(f*R/w).toFixed(2))});
+out[box.id]=box.innerHTML;
+}
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{['t1','t2','t3','t4'].forEach(id=>$(id).hidden=id!==b.dataset.tab);document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x===b));drawArt();drawHarm();drawRos()});
+document.querySelectorAll('[data-aw]').forEach(b=>b.onclick=()=>{$('aw').value=b.dataset.aw;drawArt()});
+['aw','sh','tn'].forEach(id=>$(id).addEventListener(id==='aw'?'input':'change',drawArt));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawArt);
+
+const SOL=[174,285,396,417,528,639,741,852,963];
+const sw='fill="none" stroke="currentColor" stroke-opacity=".3" stroke-width="1"';
+const pol2=(r,a)=>[200+r*Math.cos(a),200+r*Math.sin(a)];
+function geo(g){let s='';
+if(g==='flower'){const r=44;for(let q=-2;q<=2;q++)for(let t=-2;t<=2;t++)if(Math.abs(q+t)<=2)s+=`<circle cx="${(200+r*(q+t/2)).toFixed(1)}" cy="${(200+r*t*.866).toFixed(1)}" r="${r}" ${sw}/>`;s+=`<circle cx="200" cy="200" r="${r*3}" ${sw}/>`}
+else if(g==='metatron'){const P=[[200,200]];[58,116].forEach(R=>{for(let k=0;k<6;k++)P.push(pol2(R,k*Math.PI/3-Math.PI/2))});P.forEach((p,i)=>{s+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="15" ${sw}/>`;for(let j=i+1;j<P.length;j++)s+=`<line x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${P[j][0].toFixed(1)}" y2="${P[j][1].toFixed(1)}" stroke="currentColor" stroke-opacity=".16" stroke-width=".8"/>`});s+=`<circle cx="200" cy="200" r="145" ${sw}/>`}
+else if(g==='hexagram'){[-Math.PI/2,Math.PI/2].forEach(o=>{s+=`<polygon points="${[0,1,2].map(k=>pol2(150,o+k*2*Math.PI/3).map(v=>v.toFixed(1)).join(',')).join(' ')}" ${sw}/>`});s+=`<circle cx="200" cy="200" r="150" ${sw}/><circle cx="200" cy="200" r="87" ${sw}/>`}
+return s}
+function sig(all,c,bg,al){const u=[...new Set(all)];if(!u.length)return'';
+const P=ch=>{const a=idx(ch)/26*2*Math.PI-Math.PI/2;return[200+105*Math.cos(a),200+105*Math.sin(a),a]};
+const pts=u.map(P),pl=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+const ln=(w,col,o)=>`<polyline points="${pl}" fill="none" stroke="${col}" stroke-opacity="${o}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`;
+let s=ln(6,bg,.75)+ln(2.4,c,1);const f=pts[0],l=pts[pts.length-1];
+s+=`<circle cx="${f[0].toFixed(1)}" cy="${f[1].toFixed(1)}" r="7" fill="${bg}" fill-opacity=".6" stroke="${c}" stroke-width="2.4"/>`;
+if(pts.length>1){const q=pts[pts.length-2],g=Math.atan2(l[1]-q[1],l[0]-q[0])+Math.PI/2,x=9*Math.cos(g),y=9*Math.sin(g);s+=`<line x1="${(l[0]-x).toFixed(1)}" y1="${(l[1]-y).toFixed(1)}" x2="${(l[0]+x).toFixed(1)}" y2="${(l[1]+y).toFixed(1)}" stroke="${c}" stroke-width="3.5" stroke-linecap="round"/>`}
+if(al)u.forEach(ch=>{const p=P(ch);s+=`<text x="${(200+128*Math.cos(p[2])).toFixed(1)}" y="${(205+128*Math.sin(p[2])).toFixed(1)}" font-size="15" font-style="normal" text-anchor="middle" font-family="'Noto Sans Symbols','Noto Sans Symbols 2','Segoe UI Symbol',serif">${A[idx(ch)]}</text>`});
+return s}
+function drawHarm(){
+if($('t3').hidden)return;
+const raw=$('hw').value.trim(),box=$('harm'),c=inkc('tn2'),ws=words(raw),all=ws.join(''),bg=dk()?'#14101c':'#f4efe4';
+const val=w=>[...w].reduce((a,x)=>a+idx(x)+1,0);
+let post='';
+if($('cb1').checked)post+=sig(all,c,bg,$('cb2').checked);
+const rg=$('ring').value;
+if(rg!=='none'&&ws.length){const un=rg==='runes'?ws.map(runeWord).join('᛫')+'᛫':rg==='ogham'?ws.map(oghWord).join(' ')+' ':ws.map(w=>roman(val(w))).join(' · ')+' · ';post+=tp('rr',cir(190),9,esc(un))}
+const tot=ws.reduce((s,w)=>s+val(w),0),f=SOL[tot%9];
+$('hinfo').textContent=ws.length?`Total ${tot} = ${roman(tot)} · fréquence ${f} Hz`:'';
+box.dataset.f=f;
+paint(raw,$('sh2').value,c,box,geo($('geo').value),post)}
+function playF(f){try{const C=new(window.AudioContext||window.webkitAudioContext)(),t=C.currentTime,g=C.createGain();g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.12,t+.8);g.gain.linearRampToValueAtTime(0,t+4);g.connect(C.destination);[f,f*1.5].forEach(h=>{const o=C.createOscillator();o.frequency.value=h;o.connect(g);o.start(t);o.stop(t+4.1)});setTimeout(()=>C.close(),4300)}catch(e){}}
+$('pf').onclick=()=>playF(+$('harm').dataset.f||528);
+['hw','sh2','tn2','geo','ring','cb1','cb2'].forEach(id=>$(id).addEventListener(id==='hw'?'input':'change',drawHarm));
+document.querySelectorAll('[data-hw]').forEach(b=>b.onclick=()=>{$('hw').value=b.dataset.hw;drawHarm()});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawHarm);
+
+const ZH=heart(1);
+const P={a:'𐤀',b:'𐤁',c:'𐤊',d:'𐤃',e:'𐤄',f:'𐤐',g:'𐤂',h:'𐤇',i:'𐤉',j:'𐤂',k:'𐤒',l:'𐤋',m:'𐤌',n:'𐤍',o:'𐤏',p:'𐤐',q:'𐤒',r:'𐤓',s:'𐤎',t:'𐤕',u:'𐤅',v:'𐤅',w:'𐤅',x:'𐤒𐤎',y:'𐤉',z:'𐤆',ch:'𐤔',th:'𐤈',ou:'𐤅'};
+const GR={a:'α',b:'β',c:'κ',d:'δ',e:'ε',f:'φ',g:'γ',h:'η',i:'ι',j:'ι',k:'κ',l:'λ',m:'μ',n:'ν',o:'ο',p:'π',q:'κ',r:'ρ',s:'σ',t:'τ',u:'υ',v:'β',w:'ω',x:'ξ',y:'υ',z:'ζ',ch:'χ',ph:'φ',th:'θ',ou:'ου'};
+const HG={a:'𓄿',b:'𓃀',c:'𓎡',d:'𓂧',e:'𓇋',f:'𓆑',g:'𓎼',h:'𓉔',i:'𓇋',j:'𓆓',k:'𓎡',l:'𓃭',m:'𓅓',n:'𓈖',o:'𓅱',p:'𓊪',q:'𓈎',r:'𓂋',s:'𓋴',t:'𓏏',u:'𓅱',v:'𓆑',w:'𓅱',x:'𓎡𓋴',y:'𓇌',z:'𓊃'};
+const SCR={runes:ws=>ws.map(runeWord).join('᛫')+'᛫',ogham:ws=>ws.map(oghWord).join(' ')+' ',hebrew:ws=>ws.map(hebWord).join(' ')+' ',
+phoenician:ws=>ws.map(w=>(w.match(/ch|th|ou|[a-z]/g)||[]).map(t=>P[t]).join('')).join(' ')+' ',
+greek:ws=>ws.map(w=>(w.match(/ch|ph|th|ou|[a-z]/g)||[]).map(t=>GR[t]).join('').replace(/σ$/,'ς')).join(' ')+' ',
+hiero:ws=>ws.map(w=>[...w].map(t=>HG[t]).join('')).join(' ')+' ',
+alchemy:ws=>ws.map(w=>[...w].map(c=>A[idx(c)]).join('')).join(' ')+' ',
+maths:ws=>ws.map(w=>[...w].map(c=>M[idx(c)]).join('')).join(' ')+' ',
+roman:ws=>ws.map(w=>roman([...w].reduce((a,x)=>a+idx(x)+1,0))).join(' · ')+' · '};
+
+const pth=(id,d,o)=>`<path id="${id}" d="${d}" fill="none" stroke="currentColor" stroke-opacity="${o||0}" stroke-width=".6"/>`;
+const txt=(id,fs,u,tr)=>`<text data-p="${id}" data-u="${u}" data-fs="${fs}"${tr?` transform="${tr}"`:''}><textPath href="#${id}">${u}</textPath></text>`;
+function fitSvg(sv){sv.querySelectorAll('text[data-p]').forEach(t=>{const L=sv.querySelector('#'+t.dataset.p).getTotalLength(),e=t.firstChild,fs=+t.dataset.fs,x=t.dataset.u;e.textContent=x;t.setAttribute('font-size',fs);const w=t.getComputedTextLength();if(!w||!L)return;const n=Math.max(1,Math.round(L/w));e.textContent=x.repeat(n);t.setAttribute('font-size',(fs*L/(n*w)).toFixed(2))});sv.querySelectorAll('text[data-r]').forEach(t=>{const w=t.getComputedTextLength(),R=+t.dataset.r,f=+t.getAttribute('font-size');if(w>R)t.setAttribute('font-size',(f*R/w).toFixed(2))})}
+function layer(nm,n,p,u,uS,W,ws){
+const a=360/n,h=a/2;let s='';
+const gT=(sx,sy,k)=>`translate(200 200) scale(${k}) translate(-200 -200)`;
+if(nm==='petals'){const ps=Math.min(1,3.2/n+.2);s+=pth(p+'a',PET);for(let i=0;i<n;i++){s+=txt(p+'a',Math.round(15/ps),u,`rotate(${i*a} 200 200) ${gT(0,0,ps)}`);s+=txt(p+'a',Math.round(24/ps),uS,`rotate(${i*a+h} 200 200) ${gT(0,0,(ps*.55).toFixed(3))}`)}}
+else if(nm==='hearts'){const k=Math.min(.36,2*Math.PI*130/n/352*.95);s+=pth(p+'a',ZH);for(let i=0;i<n;i++){s+=txt(p+'a',Math.round(9/k),u,`rotate(${i*a} 200 200) translate(200 70) scale(${k.toFixed(3)}) translate(-200 -190)`);s+=txt(p+'a',Math.round(18/k),uS,`rotate(${i*a+h} 200 200) translate(200 140) scale(${(k*.5).toFixed(3)}) translate(-200 -190)`)}}
+else if(nm==='doves'){const k=Math.min(.4,2*Math.PI*135/n/300*.95);s+=pth(p+'a',DOVE);for(let i=0;i<n;i++){s+=txt(p+'a',Math.round(10/k),u,`rotate(${i*a} 200 200) translate(200 65) scale(${k.toFixed(3)}) translate(-188 -177)`);s+=txt(p+'a',Math.round(20/k),uS,`rotate(${i*a+h} 200 200) translate(200 130) scale(${(k*.5).toFixed(3)}) translate(-188 -177)`)}}
+else if(nm==='galaxy'){let d='';for(let r=14;r<=186;r+=4){const t=r/186*1.7;d+=(d?'L':'M')+(200+r*Math.sin(t)).toFixed(1)+','+(200-r*Math.cos(t)).toFixed(1)}s+=pth(p+'a',d);for(let i=0;i<n;i++){s+=`<path class="dr" pathLength="1" d="${d}" transform="rotate(${i*a} 200 200)" fill="none" stroke="currentColor" stroke-opacity=".18" stroke-width=".7"/>`;s+=txt(p+'a',13,esc(W[i%W.length]+' · '),`rotate(${i*a} 200 200)`)}}
+else if(nm==='star'){const st=Math.max(1,Math.floor((n-1)/2)),gc=(x,y)=>y?gc(y,x%y):x,g=gc(n,st);[[180,0],[112,Math.PI/n]].forEach(([R,off],ri)=>{for(let s0=0;s0<g;s0++){const pts=[];let v=s0;do{const an=-Math.PI/2+off+v*2*Math.PI/n;pts.push([200+R*Math.cos(an),200+R*Math.sin(an)]);v=(v+st)%n}while(v!==s0);const id=p+'s'+ri+'_'+s0,d=pts.map((q,i)=>(i?'L':'M')+q[0].toFixed(1)+','+q[1].toFixed(1)).join('')+'Z';s+=pth(id,d,.25)+txt(id,ri?10:13,u,'')}})}
+else if(nm==='sigil'){const U=[...new Set(ws.join(''))];if(!U.length)return'';const pl=R=>U.map(ch=>{const an=idx(ch)/26*2*Math.PI-Math.PI/2;return(200+R*Math.cos(an)).toFixed(1)+','+(200+R*Math.sin(an)).toFixed(1)}).join(' ');
+for(let i=0;i<n;i++){s+=`<polyline class="dr" pathLength="1" points="${pl(150)}" transform="rotate(${i*a} 200 200)" fill="none" stroke="currentColor" stroke-opacity=".7" stroke-width="1.5" stroke-linejoin="round"/><polyline class="dr" pathLength="1" points="${pl(80)}" transform="rotate(${i*a+h} 200 200)" fill="none" stroke="currentColor" stroke-opacity=".9" stroke-width="1.5" stroke-linejoin="round"/>`}}
+if(nm==='spiro'){[[.65,.35,0,1,.9],[.45,.3,Math.PI,2,.65],[.3,.2,0,3,.5]].forEach(([b0,b1,ph,m,o])=>{let d='';for(let i=0;i<=360;i++){const t=i/360*2*Math.PI,r=185*(b0+b1*Math.cos(n*m*t+ph));d+=(i?'L':'M')+(200+r*Math.sin(t)).toFixed(1)+','+(200-r*Math.cos(t)).toFixed(1)}s+=`<path class="dr" pathLength="1" d="${d}Z" fill="currentColor" fill-opacity=".05" stroke="currentColor" stroke-opacity="${o}" stroke-width="1.1"/>`})}
+if(nm==='lotus'){const ps=Math.min(1,3.2/n+.2);[[1,0],[.74,.5],[.5,0],[.3,.5]].forEach(([k,o],j)=>{for(let i=0;i<n;i++)s+=`<path class="dr" pathLength="1" d="${PET}" transform="rotate(${(i+o)*a} 200 200) translate(200 200) scale(${(k*ps).toFixed(3)}) translate(-200 -200)" fill="currentColor" fill-opacity="${(.06+j*.03).toFixed(2)}" stroke="currentColor" stroke-opacity=".8" stroke-width="${(1.1/(k*ps)).toFixed(2)}"/>`})}
+if(nm==='snow'){s+=pth(p+'a','M200,200L200,18');for(let i=0;i<n;i++){const g=`rotate(${i*a} 200 200)`;let l='M200,200L200,18';[[70,38],[110,30],[150,20]].forEach(([y,len])=>{[-1,1].forEach(sg=>{l+=`M200,${200-y}L${(200+sg*len*.72).toFixed(1)},${(200-y-len*.7).toFixed(1)}`})});s+=`<path class="dr" pathLength="1" d="${l}" transform="${g}" fill="none" stroke="currentColor" stroke-opacity=".85" stroke-width="1.3" stroke-linecap="round"/>`+txt(p+'a',12,esc(W[i%W.length]+' · '),g)}}
+if(nm==='orbs'){[[60,.7],[110,1],[165,1.3]].forEach(([R,sz],j)=>{let g='';for(let i=0;i<n;i++){const an=(i+j*.5)*a*Math.PI/180,x=(200+R*Math.sin(an)).toFixed(1),y=(200-R*Math.cos(an)).toFixed(1);g+=`<circle cx="${x}" cy="${y}" r="${(16*sz).toFixed(1)}" fill="url(#og${n})"/><circle cx="${x}" cy="${y}" r="${(3*sz).toFixed(1)}" fill="currentColor"/>`}s+=`<g class="spin${j%2?'':' rev'}" style="animation-duration:calc(var(--d,40)*${(.6+j*.5).toFixed(1)}s)">${g}</g>`})}
+if(nm==='tunnel'){for(let j=0;j<10;j++){const R=185*Math.pow(.8,j),rt=j*a*.22*Math.PI/180;let d='';for(let i=0;i<n;i++){const an=i*a*Math.PI/180+rt;d+=(i?'L':'M')+(200+R*Math.sin(an)).toFixed(1)+','+(200-R*Math.cos(an)).toFixed(1)}s+=`<path class="dr" pathLength="1" d="${d}Z" fill="none" stroke="currentColor" stroke-opacity="${(.95-j*.07).toFixed(2)}" stroke-width="1.1"/>`}}
+if(nm==='rays'){const w=Math.min(40,Math.PI*186/n*.5);for(let i=0;i<n;i++){s+=`<polygon points="200,200 ${(200-w).toFixed(0)},14 ${(200+w).toFixed(0)},14" transform="rotate(${i*a} 200 200)" fill="url(#rg${n})"/><polygon points="200,200 ${(200-w/2).toFixed(0)},80 ${(200+w/2).toFixed(0)},80" transform="rotate(${(i+.5)*a} 200 200)" fill="url(#rg${n})"/>`}}
+if(['sun','mandala','spiral','angels'].includes(nm)){const k=Math.min(nm==='angels'?.34:.4,2*Math.PI*120/n/380*.95);for(let i=0;i<n;i++){const pf=p+i+'_';s+=`<g transform="rotate(${i*a} 200 200) translate(200 80) scale(${k.toFixed(3)}) translate(-200 -200)">`+mk(nm,W,u).replace(/(\bid="|data-p="|href="#)(\w+)"/g,(m,x,y)=>x+pf+y+'"')+'</g>'}}
+return s}
+function drawRos(){
+if($('t4').hidden)return;
+const raw=$('rw').value.trim(),c=inkc('tn3'),ly=[...document.querySelectorAll('.ly:checked')].map(x=>x.value),sc=[...document.querySelectorAll('.sc:checked')].map(x=>x.value);
+[3,6,9].forEach(n=>{const box=$('ro'+n);
+if(!raw||(!ly.length&&!sc.length)){box.innerHTML='<span class="empty">Écrivez des mots et cochez au moins un motif…</span>';out['ro'+n]='';return}
+const ws=words(raw),W=raw.split(/[\s,;·]+/).filter(Boolean),u=esc((W.length>14?W.slice(0,14).join(' '):raw.replace(/\s+/g,' '))+' · '),uS=esc(W[0]+' · ');
+let b='',li=0;
+['rays','tunnel','spiro','lotus','star','galaxy','snow','sun','mandala','spiral','petals','hearts','doves','angels','orbs','sigil'].forEach(nm=>{if(!ly.includes(nm))return;b+=`<g class="spin${li%2?' rev':''}" style="animation-duration:calc(var(--d,40)*${(1+li*.4).toFixed(1)}s)">${layer(nm,n,'r'+n+nm,u,uS,W,ws)}</g>`;li++});
+sc.forEach((k,j)=>{if(!ws.length)return;const id='r'+n+'sc'+j;b+=`<g class="spin${li%2?' rev':''}" style="animation-duration:calc(var(--d,40)*${(1+li*.4).toFixed(1)}s)">${pth(id,cir(192-16*j),.12)+txt(id,12,esc(SCR[k](ws)),'')}</g>`;li++});
+box.innerHTML=`<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" fill="${c}" color="${c}" font-family="Georgia,'Times New Roman',serif" font-style="italic" role="img" aria-label="Rosace ×${n}"><defs><radialGradient id="gr${n}"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient><linearGradient id="rg${n}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="currentColor" stop-opacity=".5"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient><radialGradient id="og${n}"><stop offset="0" stop-color="currentColor" stop-opacity=".7"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></radialGradient></defs><circle cx="200" cy="200" r="198" fill="url(#gr${n})"/><g class="pz">${b}</g></svg>`;
+fitSvg(box.firstChild);out['ro'+n]=box.innerHTML})}
+document.querySelectorAll('[data-mix]').forEach(b=>b.onclick=()=>{const m=b.dataset.mix.split(',');document.querySelectorAll('.ly,.sc').forEach(x=>x.checked=m.includes(x.value));drawRos()});
+document.querySelectorAll('.ly,.sc').forEach(x=>x.addEventListener('change',drawRos));
+['rw','tn3'].forEach(id=>$(id).addEventListener(id==='rw'?'input':'change',drawRos));
+$('spd').addEventListener('change',()=>$('t4').style.setProperty('--d',$('spd').value));
+$('t4').style.setProperty('--d',$('spd').value);
+document.querySelectorAll('.fxb').forEach(b=>b.onclick=()=>{b.classList.toggle('on',$('t4').classList.toggle('fx-'+b.dataset.fx))});
+$('rot').onclick=()=>{const r=$('t4').classList.toggle('run');$('rot').textContent=r?'Arrêter la rotation':'Faire tourner'};
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',drawRos);
+
+let DL=null;
+(async()=>{try{if(window.claude&&window.claude.use)DL=await window.claude.use('downloads')}catch(e){}if(DL)document.querySelectorAll('[data-gif]').forEach(b=>b.hidden=false)})();
+function lzw(px){const clr=256,eoi=257;let bits=0,cur=0,size=9,next=258,dict=new Map(),out=[];
+const put=c=>{cur|=c<<bits;bits+=size;while(bits>=8){out.push(cur&255);cur>>=8;bits-=8}};
+put(clr);let p=px[0];
+for(let i=1;i<px.length;i++){const k=px[i],key=(p<<8)|k,v=dict.get(key);
+if(v!==undefined){p=v}else{put(p);if(next===4096){put(clr);dict.clear();next=258;size=9}else{if(next>=(1<<size))size++;dict.set(key,next++)}p=k}}
+put(p);put(eoi);if(bits>0)out.push(cur&255);return out}
+async function makeGif(n,btn){
+const sv=$('ro'+n).firstChild;if(!sv||!DL||!sv.getAttribute)return;
+const N=60,S=400,old=btn.textContent;btn.disabled=true;
+try{
+const cv=document.createElement('canvas');cv.width=cv.height=S;const cx=cv.getContext('2d',{willReadFrequently:true});
+const c1=document.createElement('canvas');c1.width=c1.height=1;const x1=c1.getContext('2d',{willReadFrequently:true});
+const rgb=col=>{x1.clearRect(0,0,1,1);x1.fillStyle=col;x1.fillRect(0,0,1,1);const d=x1.getImageData(0,0,1,1).data;return[d[0],d[1],d[2]]};
+const bg=rgb(getComputedStyle(document.body).backgroundColor),ink0=rgb(sv.getAttribute('color'));
+const fx=k=>$('t4').classList.contains('fx-'+k);
+const hsl=([r,g,b])=>{r/=255;g/=255;b/=255;const M=Math.max(r,g,b),m=Math.min(r,g,b),l=(M+m)/2,d=M-m;let h=0,s=0;if(d){s=d/(1-Math.abs(2*l-1));h=M===r?((g-b)/d+6)%6:M===g?(b-r)/d+2:(r-g)/d+4;h*=60}return[h,s,l]};
+const [H,Sa,L]=hsl(ink0),w16=v=>[v&255,(v>>8)&255];
+const chunks=[new Uint8Array([...'GIF89a'].map(c=>c.charCodeAt(0)).concat(w16(S),w16(S),[0x70,0,0],[0x21,0xFF,0x0B],[...'NETSCAPE2.0'].map(c=>c.charCodeAt(0)),[3,1,0,0,0]))];
+for(let i=0;i<N;i++){
+btn.textContent='Création '+(i+1)+'/'+N;
+const ink=fx('hue')?`hsl(${((H+360*i/N)%360).toFixed(1)} ${(Sa*100).toFixed(1)}% ${(L*100).toFixed(1)}%)`:sv.getAttribute('color'),ir=rgb(ink);
+const cl=sv.cloneNode(true);cl.setAttribute('width',S);cl.setAttribute('height',S);cl.setAttribute('fill',ink);cl.setAttribute('color',ink);
+const sp=[...cl.querySelectorAll('.spin')],tw=[...cl.querySelectorAll('.spin>*:not(.spin)')],pz=cl.querySelector('.pz');
+if(fx('twk'))tw.forEach((e,k)=>e.setAttribute('opacity',(1-.85*(1-Math.cos(2*Math.PI*(i/N+[0,.346,.654][k%3])))/2).toFixed(2)));
+sp.forEach((g,q)=>{const d=g.classList.contains('rev')?-1:1;g.removeAttribute('style');g.removeAttribute('class');g.setAttribute('transform',`rotate(${(d*360*[1,2,1,2][q%4]*i/N).toFixed(2)} 200 200)`)});
+if(pz&&fx('pulse')){const k=1+.07*(1-Math.cos(2*Math.PI*i/N))/2;pz.setAttribute('transform',`translate(200 200) scale(${k.toFixed(4)}) translate(-200 -200)`)}
+const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(cl)],{type:'image/svg+xml;charset=utf-8'}));
+const im=new Image();await new Promise((ok,ko)=>{im.onload=ok;im.onerror=ko;im.src=url});URL.revokeObjectURL(url);
+cx.fillStyle=`rgb(${bg})`;cx.fillRect(0,0,S,S);
+if(fx('glow')&&'filter' in cx)cx.filter=`drop-shadow(0 0 4px ${ink}) drop-shadow(0 0 12px ${ink})`;
+cx.drawImage(im,0,0,S,S);cx.filter='none';
+const d=cx.getImageData(0,0,S,S).data,px=new Uint8Array(S*S),dr=ir[0]-bg[0],dg=ir[1]-bg[1],db=ir[2]-bg[2],D=dr*dr+dg*dg+db*db||1;
+for(let j=0;j<px.length;j++){const o=j*4,t=((d[o]-bg[0])*dr+(d[o+1]-bg[1])*dg+(d[o+2]-bg[2])*db)/D;px[j]=t<=0?0:t>=1?255:Math.round(t*255)}
+const pal=[];for(let k=0;k<256;k++)for(let c=0;c<3;c++)pal.push(Math.round(bg[c]+(ir[c]-bg[c])*k/255));
+const data=lzw(px),fr=[0x21,0xF9,4,0,...w16(7),0,0,0x2C,0,0,0,0,...w16(S),...w16(S),0x87,...pal,8];
+for(let o=0;o<data.length;o+=255){const b=data.slice(o,o+255);fr.push(b.length,...b)}
+fr.push(0);chunks.push(new Uint8Array(fr));
+if(i%4===3)await new Promise(r=>setTimeout(r))}
+chunks.push(new Uint8Array([0x3B]));
+btn.textContent='Enregistrement…';
+await DL.save({filename:`rosace-x${n}.gif`,data:new Blob(chunks,{type:'image/gif'})});
+}catch(e){if(!e||e.code!=='declined')btn.textContent='Échec du GIF'}
+finally{if(btn.textContent!=='Échec du GIF')btn.textContent=old;else setTimeout(()=>btn.textContent=old,2500);btn.disabled=false}}
+document.querySelectorAll('[data-gif]').forEach(b=>b.onclick=()=>makeGif(+b.dataset.gif,b));
+const PR=[["Christianisme", "Notre Père (abrégé)", "Notre Père qui es aux cieux, que ton nom soit sanctifié, que ton règne vienne, que ta volonté soit faite sur la terre comme au ciel. Donne-nous aujourd'hui notre pain de ce jour. Pardonne-nous nos offenses comme nous pardonnons à ceux qui nous ont offensés. Délivre-nous du mal."], ["Christianisme", "Ave Maria (latin)", "Ave Maria, gratia plena, Dominus tecum. Benedicta tu in mulieribus, et benedictus fructus ventris tui, Jesus."], ["Christianisme", "Prière pour la paix (saint François)", "Seigneur, fais de moi un instrument de ta paix. Là où est la haine, que je mette l'amour. Là où est l'offense, que je mette le pardon. Là où est le doute, que je mette la foi. Là où sont les ténèbres, que je mette ta lumière."], ["Judaïsme", "Bénédiction sacerdotale", "Que l'Éternel te bénisse et te garde. Que l'Éternel fasse rayonner sur toi sa lumière et t'accorde sa grâce. Que l'Éternel tourne vers toi son visage et te donne la paix."], ["Judaïsme", "Shema Israël", "Shema Israël, Adonaï Éloheinou, Adonaï Ehad. Écoute, Israël : l'Éternel est notre Dieu, l'Éternel est un. Tu aimeras l'Éternel de tout ton cœur, de toute ton âme, de toutes tes forces."], ["Judaïsme", "Oseh Shalom", "Oseh shalom bimromav, hu ya'aseh shalom aleinu, ve'al kol Israël, ve'al kol yoshvei tevel. Que celui qui fait la paix dans les hauteurs la fasse sur nous, sur tout Israël et sur tous les habitants de la terre."], ["Islam", "Al-Fatiha (abrégée)", "Au nom de Dieu, le Clément, le Miséricordieux. Louange à Dieu, Seigneur des mondes, le Clément, le Miséricordieux. C'est toi que nous adorons, c'est toi dont nous implorons le secours. Guide-nous sur le droit chemin."], ["Islam", "Salutation de paix", "Assalamu alaykum wa rahmatullah : que la paix et la miséricorde de Dieu soient sur vous."], ["Hindouisme", "Asato mā (Upanishad)", "Asato mā sad gamaya, tamaso mā jyotir gamaya, mṛtyor mā amṛtaṃ gamaya. Conduis-moi de l'irréel au réel, des ténèbres à la lumière, de la mort à l'immortalité. Om shanti shanti shanti."], ["Hindouisme", "Lokāḥ samastāḥ", "Lokāḥ samastāḥ sukhino bhavantu : que tous les êtres, partout, soient heureux et libres."], ["Bouddhisme", "Métta (bienveillance)", "Que tous les êtres soient heureux. Que tous les êtres soient en paix. Que tous les êtres soient libres de la souffrance. Que mon cœur s'ouvre à chacun avec bienveillance."], ["Sikhisme", "Ik Onkar · Sarbat da bhala", "Ik Onkar, Sat Nam : un seul Créateur, vérité éternelle, sans peur et sans haine. Sarbat da bhala : que tous soient bénis, que le bien soit pour tous."], ["Bahaïsme", "Prière de lumière", "Ô Dieu, guide-moi, protège-moi, fais de moi une lampe qui brille et une étoile radieuse."], ["Taoïsme", "Tao Te King (ch. 8)", "Le bien suprême est comme l'eau : elle nourrit tous les êtres sans rivaliser et demeure dans les lieux que chacun dédaigne."], ["Jaïnisme", "Khamemi savve jive", "Khamemi savve jive, savve jiva khamantu me, mitti me savva bhuesu, veram majjha na keinai. Je pardonne à tous les êtres, que tous me pardonnent. Je suis ami de tous, je n'ai d'ennemi en personne."], ["Zoroastrisme", "Ashem Vohu", "Ashem vohu vahishtem astî : la sainteté est le plus grand bien, et le bonheur est pour qui désire la sainteté pour elle-même."], ["Peuple lakota", "Mitákuye Oyás'iŋ", "Mitákuye Oyás'iŋ : nous sommes tous reliés, tous mes parents, tous les êtres de la terre et du ciel."], ["Hawaï", "Ho'oponopono", "Je suis désolé. Pardonne-moi. Merci. Je t'aime."], ["Afrique australe", "Ubuntu", "Umuntu ngumuntu ngabantu : je suis parce que nous sommes."], ["Pour tous", "Respect et amour (texte original)", "Que chacun soit respecté, quelle que soit sa croyance. Que l'amour traverse toutes nos différences. Que la lumière éclaire tous les cœurs et que la paix habite toutes les maisons."], ["Pour tous", "Prière de lumière (texte original)", "Que la lumière m'éclaire, que l'amour me guide, que la paix habite mon cœur et celui de chacun."]];
+document.querySelectorAll('.pr').forEach(sel=>{sel.innerHTML='<option value="">Prières du monde…</option>'+PR.map((p,i)=>`<option value="${i}">${p[0]} — ${p[1]}</option>`).join('');sel.onchange=()=>{if(sel.value==='')return;const t=$(sel.dataset.for);t.value=PR[+sel.value][2];t.dispatchEvent(new Event('input',{bubbles:true}));sel.value=''}});
+$('in').value='Que la lumière guide mon chemin';render();
+</script>
+</body>
+</html>
